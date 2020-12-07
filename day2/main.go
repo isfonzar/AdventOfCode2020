@@ -21,7 +21,8 @@ func main() {
 	}
 	defer file.Close()
 
-	count := 0
+	countValidOccurrences := 0
+	countValidPositions := 0
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -32,9 +33,11 @@ func main() {
 
 		min, _ := strconv.Atoi(matches[1])
 		max, _ := strconv.Atoi(matches[2])
-		isValid := process(min, max, matches[3], matches[4])
-		if isValid {
-			count++
+		if isValidByOccurrences(min, max, matches[3], matches[4]) {
+			countValidOccurrences++
+		}
+		if isValidByPosition(min, max, matches[3], matches[4]) {
+			countValidPositions++
 		}
 	}
 
@@ -42,10 +45,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Valid passwords: %d\n", count)
+	fmt.Printf("Valid passwords by occurrences: %d\n", countValidOccurrences)
+	fmt.Printf("Valid passwords by position: %d\n", countValidPositions)
 }
 
-func process(min int, max int, char string, pw string) bool {
+func isValidByOccurrences(min int, max int, char string, pw string) bool {
 	c := strings.Count(pw, char)
 
 	if c < min {
@@ -56,4 +60,18 @@ func process(min int, max int, char string, pw string) bool {
 	}
 
 	return true
+}
+
+func isValidByPosition(min int, max int, char string, pw string) bool {
+	leftPos := min - 1
+	rightPos := max - 1
+
+	if string(pw[leftPos]) == char && string(pw[rightPos]) == char {
+		return false
+	}
+	if string(pw[leftPos]) == char || string(pw[rightPos]) == char {
+		return true
+	}
+
+	return false
 }
